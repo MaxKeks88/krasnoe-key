@@ -877,6 +877,86 @@ body.no-scroll { overflow: hidden; }
 .footer-copy { font-size: 12px; letter-spacing: 0.06em; }
 
 /* ============================================================
+   СЧЁТЧИК ПОСЕЩЕНИЙ (правый нижний угол)
+   ============================================================ */
+
+.visit-counter {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 172px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px 12px;
+  box-shadow: 0 16px 38px rgba(30, 55, 44, 0.16);
+  overflow: hidden;
+}
+
+/* горчичная полоска сверху — как фирменная деталь */
+.visit-counter::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--mustard);
+}
+
+.vc-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.vc-title svg {
+  width: 13px;
+  height: 13px;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.vc-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.vc-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.vc-item strong {
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+
+.vc-item-total strong { color: var(--terra); }
+
+.vc-item span {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ============================================================
    ПОЯВЛЕНИЕ ПРИ СКРОЛЛЕ
    ============================================================ */
 
@@ -957,6 +1037,20 @@ body.no-scroll { overflow: hidden; }
   .hero-actions .btn { flex: 1 1 100%; }
 
   .ticker-group span { padding: 0 16px; font-size: 12px; }
+
+  /* счётчик посещений на мобильных — компактнее */
+  .visit-counter {
+    right: 12px;
+    bottom: 12px;
+    min-width: 148px;
+    padding: 11px 13px 10px;
+    gap: 7px;
+    border-radius: 12px;
+  }
+
+  .vc-row { gap: 13px; }
+  .vc-item strong { font-size: 18px; }
+  .vc-item span { font-size: 8.5px; }
 }
 
 @media (max-width: 420px) {

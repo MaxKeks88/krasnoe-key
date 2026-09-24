@@ -1,0 +1,8 @@
+# Конфигурация Netlify для счётчика посещений
+# Сайт остаётся обычным статическим — backend добавляет только функция /api/counter
+
+[build]
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
