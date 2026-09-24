@@ -877,23 +877,19 @@ body.no-scroll { overflow: hidden; }
 .footer-copy { font-size: 12px; letter-spacing: 0.06em; }
 
 /* ============================================================
-   СЧЁТЧИК ПОСЕЩЕНИЙ (правый нижний угол)
+   СЧЁТЧИК ПОСЕЩЕНИЙ (в самом низу страницы)
    ============================================================ */
 
 .visit-counter {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 80;
+  width: 156px;
+  margin: 36px auto 50px;
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  min-width: 172px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px 16px 12px;
-  box-shadow: 0 16px 38px rgba(30, 55, 44, 0.16);
+  gap: 7px;
+  background: var(--green-dark);
+  border: 1px solid rgba(250, 246, 238, 0.16);
+  border-radius: 10px;
+  padding: 10px 12px;
   overflow: hidden;
 }
 
@@ -909,25 +905,25 @@ body.no-scroll { overflow: hidden; }
 .vc-title {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 10px;
+  gap: 6px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: rgba(250, 246, 238, 0.6);
 }
 
 .vc-title svg {
-  width: 13px;
-  height: 13px;
-  color: var(--green);
+  width: 12px;
+  height: 12px;
+  color: var(--mustard);
   flex-shrink: 0;
 }
 
 .vc-row {
   display: flex;
   align-items: flex-end;
-  gap: 16px;
+  gap: 12px;
 }
 
 .vc-item {
@@ -938,21 +934,21 @@ body.no-scroll { overflow: hidden; }
 
 .vc-item strong {
   font-family: var(--serif);
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.1;
-  color: var(--green);
+  color: var(--cream);
   font-variant-numeric: tabular-nums;
 }
 
-.vc-item-total strong { color: var(--terra); }
+.vc-item-total strong { color: var(--mustard); }
 
 .vc-item span {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: rgba(250, 246, 238, 0.6);
   white-space: nowrap;
 }
 
@@ -1040,17 +1036,16 @@ body.no-scroll { overflow: hidden; }
 
   /* счётчик посещений на мобильных — компактнее */
   .visit-counter {
-    right: 12px;
-    bottom: 12px;
-    min-width: 148px;
-    padding: 11px 13px 10px;
-    gap: 7px;
-    border-radius: 12px;
+    width: 140px;
+    margin: 28px auto 40px;
+    padding: 9px 11px;
+    gap: 6px;
+    border-radius: 9px;
   }
 
-  .vc-row { gap: 13px; }
-  .vc-item strong { font-size: 18px; }
-  .vc-item span { font-size: 8.5px; }
+  .vc-row { gap: 11px; }
+  .vc-item strong { font-size: 16px; }
+  .vc-item span { font-size: 7.5px; }
 }
 
 @media (max-width: 420px) {
