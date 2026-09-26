@@ -53,6 +53,80 @@
     revealEls.forEach(function (el) { el.classList.add("in"); });
   }
 
+  /* ============================================================
+     РЕЖИМ РАБОТЫ: ежедневно 11:00–20:00, среда — выходной
+     Живой статус «открыто / закрыто» + время следующего открытия
+     ============================================================ */
+  var OPEN_HOUR = 11;
+  var CLOSE_HOUR = 20;
+  var DAY_OFF = 3; /* среда */
+
+  var DAY_NAMES = [
+    "в понедельник", "во вторник", "в среду",
+    "в четверг", "в пятницу", "в субботу", "в воскресенье"
+  ];
+
+  var statusBadges = document.querySelectorAll("[data-open-status]");
+
+  function nextOpenLabel(now) {
+    var today = now.getDay();
+    var hours = now.getHours();
+
+    /* Сегодня рабочий, но ещё не открылись */
+    if (today !== DAY_OFF && hours < OPEN_HOUR) {
+      return "Сегодня открываемся в " + OPEN_HOUR + ":00";
+    }
+
+    /* Среда — выходной */
+    if (today === DAY_OFF) {
+      return "Сегодня среда — выходной";
+    }
+
+    /* Ищем следующий рабочий день */
+    var next = today;
+    var step = 0;
+    for (var i = 1; i <= 7; i++) {
+      next = (today + i) % 7;
+      if (next !== DAY_OFF) { step = i; break; }
+    }
+
+    var name = DAY_NAMES[next];
+    return (
+      "Открываемся " +
+      (step === 1 ? "завтра, " + name : name) +
+      " в " + OPEN_HOUR + ":00"
+    );
+  }
+
+  function updateStatus() {
+    if (!statusBadges.length) return;
+
+    var now = new Date();
+    var today = now.getDay();
+    var isOpen =
+      today !== DAY_OFF &&
+      now.getHours() >= OPEN_HOUR &&
+      now.getHours() < CLOSE_HOUR;
+
+    var text;
+    if (isOpen) {
+      var left = CLOSE_HOUR - now.getHours();
+      text = "Сейчас открыто · до 20:00" + (left <= 1 ? " · заканчиваемся скоро" : "");
+    } else {
+      text = nextOpenLabel(now);
+    }
+
+    statusBadges.forEach(function (badge) {
+      badge.classList.toggle("is-open", isOpen);
+      badge.classList.toggle("is-closed", !isOpen);
+      var label = badge.querySelector("[data-open-text]");
+      if (label) label.textContent = text;
+    });
+  }
+
+  updateStatus();
+  setInterval(updateStatus, 60000);
+
   /* Видео-карточки: клик = развернуть в модалке, со звуком и перемоткой */
   var modal = document.getElementById("videoModal");
   var modalVideo = modal ? modal.querySelector("video") : null;
@@ -94,110 +168,4 @@
       if (e.key === "Escape") closeVideo();
     });
   }
-
-  /* Счётчик посещений: неделя / месяц / за всё время.
-     Основной режим — онлайн (ваш backend на Netlify: бесплатно, без рекламы).
-     Запасной режим — локальная статистика этого браузера (localStorage),
-     включается автоматически, если онлайн недоступен. */
-  var counterWrap = document.getElementById("visitCounter");
-  if (counterWrap) {
-
-    var STORE_KEY = "workshop_visits_v1";       /* история визитов (localStorage) */
-    var SESSION_KEY = "workshop_visit_counted"; /* один визит на сессию */
-
-    var loadVisits = function () {
-      try {
-        var data = JSON.parse(localStorage.getItem(STORE_KEY));
-        return Array.isArray(data) ? data : [];
-      } catch (e) { return []; }
-    };
-
-    var saveVisits = function (arr) {
-      try { localStorage.setItem(STORE_KEY, JSON.stringify(arr)); } catch (e) {}
-    };
-
-    var now = Date.now();
-    var visits = loadVisits();
-
-    /* Засчитываем визит один раз за сессию: обновление страницы не дублирует счётчик */
-    var counted = false;
-    try { counted = !!sessionStorage.getItem(SESSION_KEY); } catch (e) {}
-    if (!counted) {
-      visits.push(now);
-      if (visits.length > 90000) visits = visits.slice(-45000); /* защита от разрастания */
-      saveVisits(visits);
-      try { sessionStorage.setItem(SESSION_KEY, "1"); } catch (e) {}
-    }
-
-    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00A0"); };
-    var setNum = function (id, val) {
-      var el = document.getElementById(id);
-      if (el) el.textContent = fmt(val);
-    };
-
-    /* Локальные цифры (запасной режим) */
-    var DAY = 24 * 60 * 60 * 1000;
-    var localWeek = 0, localMonth = 0;
-    for (var i = 0; i < visits.length; i++) {
-      if (now - visits[i] <= 7 * DAY) localWeek++;
-      if (now - visits[i] <= 30 * DAY) localMonth++;
-    }
-    var showLocal = function () {
-      setNum("vcWeek", localWeek);
-      setNum("vcMonth", localMonth);
-      setNum("vcTotal", visits.length);
-    };
-
-    /* ===== НАСТРОЙКИ ОНЛАЙН-СЧЁТЧИКА =====
-       Чтобы считать реальных посетителей со всех устройств (бесплатно,
-       без рекламы), разверните backend из папки netlify/ на Netlify
-       (инструкция в конце этого файла) и впишите адрес функции ниже,
-       например: "https://ваш-сайт.netlify.app/api/counter"
-       Пока поле пустое — счётчик работает в локальном режиме. */
-    var COUNT_API = {
-      endpoint: "https://preeminent-biscotti-c7ad00.netlify.app/api/counter"
-    };
-
-    var onlineReady = !!(COUNT_API.endpoint && window.fetch);
-    if (!onlineReady) {
-      /* нет настроек — локальный режим */
-      showLocal();
-    } else {
-      var q = counted ? "" : "?hit=1";
-      /* сразу показываем локальные цифры, затем онлайн-значения */
-      showLocal();
-      fetch(COUNT_API.endpoint + q, { cache: "no-store" })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-          var w = parseInt(data && data.week, 10);
-          var m = parseInt(data && data.month, 10);
-          var t = parseInt(data && data.total, 10);
-          if (isFinite(w)) setNum("vcWeek", w);
-          if (isFinite(m)) setNum("vcMonth", m);
-          if (isFinite(t)) setNum("vcTotal", t);
-        })
-        .catch(function () {
-          /* сбой сети или сервиса — остаются локальные значения */
-        });
-    }
-  }
-
-  /* =========================================================
-     ИНСТРУКЦИЯ: как включить учёт всех посетителей
-     ---------------------------------------------------------
-     1. Файлы backend уже готовы в этом проекте:
-        - netlify/functions/counter.mjs  — сам счётчик
-        - netlify.toml                   — настройка Netlify
-     2. Зайдите на https://app.netlify.com → войдите через GitHub
-        (кнопка "Sign up with GitHub").
-     3. Нажмите "Add new site" → "Import an existing project" →
-        выберите ваш репозиторий с сайтом → Deploy (ничего менять не нужно).
-     4. Через 1–2 минуты Netlify выдаст адрес вида:
-        https://ваш-сайт.netlify.app
-     5. Скопируйте этот адрес + "/api/counter" в поле endpoint выше:
-        endpoint: "https://ваш-сайт.netlify.app/api/counter"
-     6. Загрузите обновлённые файлы на GitHub — и счётчик станет
-        общим для всех посетителей. Виджет на GitHub Pages продолжит
-        работать, просто получая данные от Netlify.
-     ========================================================= */
 })();
